@@ -85,7 +85,25 @@ Signature is Ed25519 over the payload (version..expiresAt). `expiresAt = 0`
 means no expiry. If `OrgPubKey` is not set or `OrgCert` is missing/invalid,
 normal password-based authentication applies.
 
-You can generate an org-signed cert with yggdrasilctl:
+Key generation (organization):
+
+```
+yggdrasilctl orgKeygen > /etc/yggdrasil/org.key
+```
+
+This writes a file containing both keys:
+
+```
+OrgPubKey: <hex>
+OrgPrivKey: <hex>
+```
+
+Distribute `OrgPubKey` to all nodes (in config). Keep `OrgPrivKey` private.
+
+Signing a node:
+
+1) Get the node's public key (from its config or `yggdrasil -publickey`).
+2) Generate an org-signed cert:
 
 ```
 yggdrasilctl orgSign pubkey=<node_pubkey_hex> orgkey=/path/to/org.key
@@ -108,6 +126,18 @@ To output as JSON:
 
 ```
 yggdrasilctl -json orgKeygen
+```
+
+Config example (node):
+
+```
+{
+  "OrgPubKey": "<org master public key hex>",
+  "OrgCert": "<org-signed cert blob hex>",
+  "Peers": [
+    "tls://peer.example.com:8091"
+  ]
+}
 ```
 
 ### Run Yggdrasil

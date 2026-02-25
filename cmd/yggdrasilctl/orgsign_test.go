@@ -22,7 +22,8 @@ func TestOrgSignOutputsValidCert(t *testing.T) {
 
 	tmp := t.TempDir()
 	orgKeyPath := tmp + "/org.key"
-	if err := os.WriteFile(orgKeyPath, []byte(hex.EncodeToString(orgPriv)), 0o600); err != nil {
+	keyFile := "OrgPubKey: " + hex.EncodeToString(orgPub) + "\nOrgPrivKey: " + hex.EncodeToString(orgPriv) + "\n"
+	if err := os.WriteFile(orgKeyPath, []byte(keyFile), 0o600); err != nil {
 		t.Fatalf("write org key: %v", err)
 	}
 
