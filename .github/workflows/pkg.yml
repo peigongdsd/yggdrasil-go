@@ -1,11 +1,17 @@
 name: Packages
 
 on:
+  push:
+    tags:
+      - "*"
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: write
 
 jobs:
   build-packages-debian:
@@ -39,6 +45,12 @@ jobs:
           path: "*.deb"
           if-no-files-found: error
 
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.deb"
+
   build-packages-macos:
     strategy:
       fail-fast: false
@@ -69,6 +81,12 @@ jobs:
           name: macOS package (${{ matrix.pkgarch }})
           path: "*.pkg"
           if-no-files-found: error
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.pkg"
 
   build-packages-windows:
     strategy:
@@ -101,6 +119,12 @@ jobs:
           name: Windows package (${{ matrix.pkgarch }})
           path: "*.msi"
           if-no-files-found: error
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.msi"
 
   build-packages-router:
     strategy:
@@ -138,3 +162,9 @@ jobs:
           name: Router package (${{ matrix.pkgarch }})
           path: "/home/runner/work/yggdrasil-go/yggdrasil-go/vyatta-yggdrasil/*.deb"
           if-no-files-found: error
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "/home/runner/work/yggdrasil-go/yggdrasil-go/vyatta-yggdrasil/*.deb"

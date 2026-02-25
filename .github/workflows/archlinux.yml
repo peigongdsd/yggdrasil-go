@@ -8,6 +8,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build-archlinux:
     name: Package (Arch Linux)
@@ -30,9 +33,21 @@ jobs:
           chown -R build:build .
           su - build -c "cd $GITHUB_WORKSPACE/contrib/archlinux && PKGDEST=$GITHUB_WORKSPACE/arch-artifacts makepkg -f --noconfirm --nodeps"
 
+      - name: Rename package
+        run: |
+          ref="${GITHUB_REF_NAME:-$GITHUB_SHA}"
+          pkg=$(ls arch-artifacts/*.pkg.tar.zst | head -n 1)
+          mv "$pkg" "arch-artifacts/yggdrasil-${ref}-x86_64.pkg.tar.zst"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Arch Linux package
-          path: arch-artifacts/*.pkg.tar.zst
+          name: yggdrasil-${{ github.ref_name }}-x86_64.pkg.tar.zst
+          path: arch-artifacts/yggdrasil-*.pkg.tar.zst
           if-no-files-found: error
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: arch-artifacts/yggdrasil-*.pkg.tar.zst
