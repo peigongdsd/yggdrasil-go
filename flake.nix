@@ -23,12 +23,7 @@
           pname = "yggdrasil";
           inherit version;
 
-          src = pkgs.fetchFromGitHub {
-            owner = "peigongdsd";
-            repo = "yggdrasil-go";
-            rev = "f939c7f791f3c76cd216db997e5003ae1c0d8d74";
-            hash = "sha256-paFee/MLH9OUTzJoX+bAsZgizdb+CmBNA4IBQCHnqvU=";
-          };
+          src = ./.;
 
           vendorHash = "sha256-oEViEh3oUbhzpn8uyasImFUarfMJpgO+VdCvoCctEnY=";
 
@@ -62,6 +57,9 @@
         };
       }) // {
         overlays.default = overlay;
-        nixosModules.yggdrasil = import ./nixos-module.nix;
+        nixosModules.yggdrasil = { pkgs, ... }: {
+          nixpkgs.overlays = [ overlay ];
+          services.yggdrasil.package = self.packages.${pkgs.system}.default;
+        };
       };
 }
