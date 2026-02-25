@@ -96,6 +96,11 @@ setting.
 - HillTweak does **not** block routes; it only biases them.
 - Very large values can make a node almost never selected for routing.
 - Use it sparingly to avoid unintentionally fragmenting the mesh.
+- If only **one node** sets HillTweak and all of its peers use `0`, then
+  **all of that node’s outgoing links get the same additive cost**. In that
+  case, endpoint sessions from that node behave the same as before because
+  the **relative ordering** of candidate paths does not change. The bias only
+  affects how attractive it is as a **transit** node.
 
 ---
 
