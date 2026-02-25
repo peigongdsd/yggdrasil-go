@@ -60,6 +60,31 @@ that is exchanged during the peering handshake. Each side contributes its own
 value, and the sum is applied as an additive bias to the link cost used for
 routing decisions. The default is `0`, which preserves existing behavior.
 
+### Org-signed certificate authentication
+
+Yggdrasil supports optional organization-signed authentication. An organization
+can sign a node’s Yggdrasil public key using an Ed25519 “org master” key. If a
+node presents a valid org-signed certificate during handshake, the peer will
+accept the connection **regardless of password mismatch** (pinned keys and
+AllowedPublicKeys still apply).
+
+Config fields (hex-encoded):
+
+```
+"OrgPubKey": "<org master public key hex>"
+"OrgCert": "<org-signed cert blob hex>"
+```
+
+Certificate format (v1):
+
+```
+version(1) | nodePubKey(32) | issuedAt(8) | expiresAt(8) | signature(64)
+```
+
+Signature is Ed25519 over the payload (version..expiresAt). `expiresAt = 0`
+means no expiry. If `OrgPubKey` is not set or `OrgCert` is missing/invalid,
+normal password-based authentication applies.
+
 ### Run Yggdrasil
 
 To run with the generated static configuration:
