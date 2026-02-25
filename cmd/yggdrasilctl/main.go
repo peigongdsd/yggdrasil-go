@@ -62,6 +62,13 @@ func run() int {
 		flag.Usage()
 		return 0
 	}
+	if strings.EqualFold(cmdLineEnv.args[0], "orgSign") {
+		if err := runOrgSign(cmdLineEnv.args[1:]); err != nil {
+			fmt.Println("Error:", err)
+			return 1
+		}
+		return 0
+	}
 
 	cmdLineEnv.setEndpoint(logger)
 

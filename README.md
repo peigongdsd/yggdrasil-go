@@ -85,6 +85,19 @@ Signature is Ed25519 over the payload (version..expiresAt). `expiresAt = 0`
 means no expiry. If `OrgPubKey` is not set or `OrgCert` is missing/invalid,
 normal password-based authentication applies.
 
+You can generate an org-signed cert with yggdrasilctl:
+
+```
+yggdrasilctl orgSign pubkey=<node_pubkey_hex> orgkey=/path/to/org.key
+```
+
+`org.key` should contain a hex-encoded Ed25519 private key (64 bytes) or seed (32 bytes).
+By default, certs never expire. Optional fields:
+
+```
+yggdrasilctl orgSign pubkey=<hex> orgkey=/path/to/org.key issued_at=<unix> expires_at=<unix>
+```
+
 ### Run Yggdrasil
 
 To run with the generated static configuration:
