@@ -26,11 +26,11 @@
           src = pkgs.fetchFromGitHub {
             owner = "peigongdsd";
             repo = "yggdrasil-go";
-            rev = "v${version}";
-            hash = "sha256-NlNQnYmK//p35pj2MInD6RVsajM/bGDhOuzOZZYoWRw=";
+            rev = "6cc74c6fb4b4e21255e130fc2717c4de941c2908";
+            hash = "sha256-fWCYSlt6zSQY/vfj55Pyj4Nl0QqJAEub/1qeKYjM7lo=";
           };
 
-          vendorHash = "sha256-xZpUWIR3xTjhhNSwPoHx7GLUgcZJrWfF0FMExlluBmg=";
+          vendorHash = "sha256-oEViEh3oUbhzpn8uyasImFUarfMJpgO+VdCvoCctEnY=";
 
           subPackages = [
             "cmd/genkeys"
@@ -39,7 +39,7 @@
           ];
 
           ldflags = [
-            "-X github.com/yggdrasil-network/yggdrasil-go/src/version.buildVersion=${version}"
+            "-X github.com/yggdrasil-network/yggdrasil-go/src/version.buildVersion=${version}+hilltweak.${"20260225160639"}"
             "-X github.com/yggdrasil-network/yggdrasil-go/src/version.buildName=yggdrasil"
             "-X github.com/yggdrasil-network/yggdrasil-go/src/config.defaultAdminListen=unix:///var/run/yggdrasil/yggdrasil.sock"
             "-s"
