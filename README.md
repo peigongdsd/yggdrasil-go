@@ -88,6 +88,44 @@ Documentation is available [on our website](https://yggdrasil-network.github.io)
 - [Frequently asked questions](https://yggdrasil-network.github.io/faq.html)
 - [Version changelog](CHANGELOG.md)
 
+## NixOS / Flake Usage
+
+This fork ships a Nix flake with both a package and a NixOS module.
+
+Example `flake.nix` snippet:
+
+```
+{
+  inputs.yggdrasil.url = "github:peigongdsd/yggdrasil-go";
+
+  outputs = { self, nixpkgs, yggdrasil, ... }:
+  let
+    system = "x86_64-linux";
+  in {
+    nixosConfigurations.host = nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        yggdrasil.nixosModules.yggdrasil
+        ({ config, pkgs, ... }: {
+          nixpkgs.overlays = [ yggdrasil.overlays.default ];
+          services.yggdrasil = {
+            enable = true;
+            settings = {
+              HillTweakMs = 250;
+              Listen = [ "tcp://0.0.0.0:12345" ];
+              Peers = [ "tcp://1.2.3.4:12345" ];
+            };
+          };
+        })
+      ];
+    };
+  };
+}
+```
+
+This overlay provides `pkgs.yggdrasil` from the fork and the module is available
+at `yggdrasil.nixosModules.yggdrasil`.
+
 ## Communities
 
 A number of IRC communities exist, including the `#yggdrasil` IRC channel on [libera.chat](https://libera.chat) and various others on [Yggdrasil-internal IRC networks](https://yggdrasil-network.github.io/services.html#irc).
