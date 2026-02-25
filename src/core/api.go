@@ -37,6 +37,7 @@ type PeerInfo struct {
 	TXRate        uint64
 	Uptime        time.Duration
 	Latency       time.Duration
+	HillTweak     time.Duration
 }
 
 type TreeEntryInfo struct {
@@ -100,6 +101,7 @@ func (c *Core) GetPeers() []PeerInfo {
 				peerinfo.Priority = p.Priority
 				peerinfo.Latency = p.Latency
 				peerinfo.Cost = p.Cost
+				peerinfo.HillTweak = time.Duration(p.HillTweakMs) * time.Millisecond
 			}
 			peers = append(peers, peerinfo)
 		}

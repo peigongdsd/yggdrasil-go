@@ -17,10 +17,11 @@ import (
 // It must always begin with the 4 bytes "meta" and a wire formatted uint64 major version number.
 // The current version also includes a minor version number, and the box/sig/link keys that need to be exchanged to open a connection.
 type version_metadata struct {
-	majorVer  uint16
-	minorVer  uint16
-	publicKey ed25519.PublicKey
-	priority  uint8
+	majorVer    uint16
+	minorVer    uint16
+	publicKey   ed25519.PublicKey
+	priority    uint8
+	hillTweakMs int64
 }
 
 const (
@@ -35,6 +36,7 @@ const (
 	metaVersionMinor               // uint16
 	metaPublicKey                  // [32]byte
 	metaPriority                   // uint8
+	metaHillTweak                  // int64 (milliseconds)
 )
 
 type handshakeError string
@@ -76,6 +78,10 @@ func (m *version_metadata) encode(privateKey ed25519.PrivateKey, password []byte
 	bs = binary.BigEndian.AppendUint16(bs, metaPriority)
 	bs = binary.BigEndian.AppendUint16(bs, 1)
 	bs = append(bs, m.priority)
+
+	bs = binary.BigEndian.AppendUint16(bs, metaHillTweak)
+	bs = binary.BigEndian.AppendUint16(bs, 8)
+	bs = binary.BigEndian.AppendUint64(bs, uint64(m.hillTweakMs))
 
 	hasher, err := blake2b.New512(password)
 	if err != nil {
@@ -135,6 +141,10 @@ func (m *version_metadata) decode(r io.Reader, password []byte) error {
 
 		case metaPriority:
 			m.priority = bs[0]
+		case metaHillTweak:
+			if len(bs) >= 8 {
+				m.hillTweakMs = int64(binary.BigEndian.Uint64(bs[:8]))
+			}
 		}
 		bs = bs[oplen:]
 	}

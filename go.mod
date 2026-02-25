@@ -23,6 +23,8 @@ require (
 	golang.zx2c4.com/wireguard/windows v0.5.3
 )
 
+replace github.com/Arceliar/ironwood => github.com/peigongdsd/ironwood v0.0.0-20260225150915-e3d48ff90d72
+
 require (
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/bits-and-blooms/bloom/v3 v3.7.1 // indirect

@@ -52,6 +52,9 @@ func TestVersionRoundtrip(t *testing.T) {
 			{majorVer: 258, minorVer: 259},
 			{majorVer: 3, minorVer: 5, priority: 6},
 			{majorVer: 260, minorVer: 261, priority: 7},
+			{majorVer: 4, minorVer: 6, priority: 8, hillTweakMs: 0},
+			{majorVer: 4, minorVer: 7, priority: 9, hillTweakMs: 1500},
+			{majorVer: 4, minorVer: 8, priority: 10, hillTweakMs: -250},
 		} {
 			// Generate a random public key for each time, since it is
 			// a required field.

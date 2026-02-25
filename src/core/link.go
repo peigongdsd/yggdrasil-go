@@ -628,6 +628,7 @@ func (l *links) handler(linkType linkType, options linkOptions, conn net.Conn, s
 	meta := version_getBaseMetadata()
 	meta.publicKey = l.core.public
 	meta.priority = options.priority
+	meta.hillTweakMs = int64(l.core.config.hillTweak / time.Millisecond)
 	metaBytes, err := meta.encode(l.core.secret, options.password)
 	if err != nil {
 		return fmt.Errorf("failed to generate handshake: %w", err)
@@ -699,13 +700,14 @@ func (l *links) handler(linkType linkType, options linkOptions, conn net.Conn, s
 	if meta.priority > priority {
 		priority = meta.priority
 	}
+	effectiveHillTweakMs := int64(l.core.config.hillTweak/time.Millisecond) + meta.hillTweakMs
 	l.core.log.Infof("Connected %s: %s, source %s",
 		dir, remoteStr, localStr)
 	if success != nil {
 		success()
 	}
 
-	err = l.core.HandleConn(meta.publicKey, conn, priority)
+	err = l.core.HandleConnWithHillTweak(meta.publicKey, conn, priority, time.Duration(effectiveHillTweakMs)*time.Millisecond)
 	switch err {
 	case io.EOF, net.ErrClosed, nil:
 		l.core.log.Infof("Disconnected %s: %s, source %s",

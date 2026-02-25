@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/url"
+	"time"
 
 	iwe "github.com/Arceliar/ironwood/encrypted"
 	iwn "github.com/Arceliar/ironwood/network"
@@ -42,6 +43,7 @@ type Core struct {
 		nodeinfo           NodeInfo                   // immutable after startup
 		nodeinfoPrivacy    NodeInfoPrivacy            // immutable after startup
 		_allowedPublicKeys map[[32]byte]struct{}      // configurable after startup
+		hillTweak          time.Duration              // immutable after startup
 	}
 	pathNotify func(ed25519.PublicKey)
 }

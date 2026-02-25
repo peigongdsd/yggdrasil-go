@@ -33,6 +33,7 @@ type PeerEntry struct {
 	TXRate        DataUnit      `json:"rate_sent,omitempty"`
 	Uptime        float64       `json:"uptime,omitempty"`
 	Latency       time.Duration `json:"latency,omitempty"`
+	HillTweakMs   int64         `json:"hill_tweak_ms,omitempty"`
 	LastErrorTime time.Duration `json:"last_error_time,omitempty"`
 	LastError     string        `json:"last_error,omitempty"`
 }
@@ -56,6 +57,9 @@ func (a *AdminSocket) getPeersHandler(req *GetPeersRequest, res *GetPeersRespons
 		}
 		if p.Latency > 0 {
 			peer.Latency = p.Latency
+		}
+		if p.HillTweak != 0 {
+			peer.HillTweakMs = p.HillTweak.Milliseconds()
 		}
 		if addr := address.AddrForKey(p.Key); addr != nil {
 			peer.PublicKey = hex.EncodeToString(p.Key)

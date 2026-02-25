@@ -53,6 +53,13 @@ programmatically):
 You will need to edit the `yggdrasil.conf` file to add or remove peers, modify
 other configuration such as listen addresses or multicast addresses, etc.
 
+### hillTweak (latency bias)
+
+Yggdrasil supports a per-node `HillTweakMs` configuration value (milliseconds)
+that is exchanged during the peering handshake. Each side contributes its own
+value, and the sum is applied as an additive bias to the link cost used for
+routing decisions. The default is `0`, which preserves existing behavior.
+
 ### Run Yggdrasil
 
 To run with the generated static configuration:

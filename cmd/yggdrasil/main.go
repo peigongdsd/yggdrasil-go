@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strings"
 	"syscall"
+	"time"
 
 	"suah.dev/protect"
 
@@ -200,6 +201,7 @@ func main() {
 		options := []core.SetupOption{
 			core.NodeInfo(cfg.NodeInfo),
 			core.NodeInfoPrivacy(cfg.NodeInfoPrivacy),
+			core.HillTweak(time.Duration(cfg.HillTweakMs) * time.Millisecond),
 			core.PeerFilter(func(ip net.IP) bool {
 				return !iprange.Contains(ip)
 			}),

@@ -1,0 +1,35 @@
+pkgname=yggdrasil-go
+pkgver=0.0.0
+pkgrel=1
+pkgdesc="End-to-end encrypted IPv6 network"
+arch=('x86_64')
+url="https://github.com/peigongdsd/yggdrasil-go"
+license=('LGPL3')
+depends=('glibc')
+makedepends=('go' 'git')
+provides=('yggdrasil')
+conflicts=('yggdrasil')
+
+pkgver() {
+	reporoot="$(cd "$startdir/../.." && pwd)"
+	cd "$reporoot"
+	git describe --tags --always --dirty | sed 's/^v//;s/-/./g'
+}
+
+build() {
+	reporoot="$(cd "$startdir/../.." && pwd)"
+	cd "$reporoot"
+	go build -trimpath -buildvcs=false -o yggdrasil ./cmd/yggdrasil
+	go build -trimpath -buildvcs=false -o yggdrasilctl ./cmd/yggdrasilctl
+	go build -trimpath -buildvcs=false -o genkeys ./cmd/genkeys
+}
+
+package() {
+	reporoot="$(cd "$startdir/../.." && pwd)"
+	cd "$reporoot"
+	install -Dm755 yggdrasil "$pkgdir/usr/bin/yggdrasil"
+	install -Dm755 yggdrasilctl "$pkgdir/usr/bin/yggdrasilctl"
+	install -Dm755 genkeys "$pkgdir/usr/bin/genkeys"
+	install -Dm644 contrib/systemd/yggdrasil.service "$pkgdir/usr/lib/systemd/system/yggdrasil.service"
+	install -Dm644 contrib/systemd/yggdrasil-default-config.service "$pkgdir/usr/lib/systemd/system/yggdrasil-default-config.service"
+}

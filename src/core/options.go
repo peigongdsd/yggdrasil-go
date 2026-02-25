@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"time"
 )
 
 func (c *Core) _applyOption(opt SetupOption) (err error) {
@@ -35,6 +36,8 @@ func (c *Core) _applyOption(opt SetupOption) (err error) {
 		pk := [32]byte{}
 		copy(pk[:], v)
 		c.config._allowedPublicKeys[pk] = struct{}{}
+	case HillTweak:
+		c.config.hillTweak = time.Duration(v)
 	}
 	return
 }
@@ -52,6 +55,7 @@ type NodeInfo map[string]interface{}
 type NodeInfoPrivacy bool
 type AllowedPublicKey ed25519.PublicKey
 type PeerFilter func(net.IP) bool
+type HillTweak time.Duration
 
 func (a ListenAddress) isSetupOption()    {}
 func (a Peer) isSetupOption()             {}
@@ -59,3 +63,4 @@ func (a NodeInfo) isSetupOption()         {}
 func (a NodeInfoPrivacy) isSetupOption()  {}
 func (a AllowedPublicKey) isSetupOption() {}
 func (a PeerFilter) isSetupOption()       {}
+func (a HillTweak) isSetupOption()        {}
