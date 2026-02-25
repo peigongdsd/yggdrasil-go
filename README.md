@@ -98,6 +98,18 @@ By default, certs never expire. Optional fields:
 yggdrasilctl orgSign pubkey=<hex> orgkey=/path/to/org.key issued_at=<unix> expires_at=<unix>
 ```
 
+You can generate an org keypair with:
+
+```
+yggdrasilctl orgKeygen
+```
+
+To output as JSON:
+
+```
+yggdrasilctl -json orgKeygen
+```
+
 ### Run Yggdrasil
 
 To run with the generated static configuration:

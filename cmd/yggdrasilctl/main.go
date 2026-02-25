@@ -69,6 +69,13 @@ func run() int {
 		}
 		return 0
 	}
+	if strings.EqualFold(cmdLineEnv.args[0], "orgKeygen") {
+		if err := runOrgKeygen(cmdLineEnv.injson); err != nil {
+			fmt.Println("Error:", err)
+			return 1
+		}
+		return 0
+	}
 
 	cmdLineEnv.setEndpoint(logger)
 
