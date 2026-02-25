@@ -7,6 +7,11 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
+    let
+      overlay = final: prev: {
+        yggdrasil = self.packages.${final.system}.default;
+      };
+    in
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -25,7 +30,7 @@
             hash = "sha256-NlNQnYmK//p35pj2MInD6RVsajM/bGDhOuzOZZYoWRw=";
           };
 
-          vendorHash = lib.fakeSha256;
+          vendorHash = "sha256-xZpUWIR3xTjhhNSwPoHx7GLUgcZJrWfF0FMExlluBmg=";
 
           subPackages = [
             "cmd/genkeys"
@@ -56,6 +61,7 @@
           };
         };
       }) // {
+        overlays.default = overlay;
         nixosModules.yggdrasil = import ./nixos-module.nix;
       };
 }
