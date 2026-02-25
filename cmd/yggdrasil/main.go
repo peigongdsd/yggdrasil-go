@@ -224,6 +224,20 @@ func main() {
 			}
 			options = append(options, core.AllowedPublicKey(k[:]))
 		}
+		if cfg.OrgPubKey != "" {
+			k, err := hex.DecodeString(cfg.OrgPubKey)
+			if err != nil {
+				panic(err)
+			}
+			options = append(options, core.OrgPubKey(k[:]))
+		}
+		if cfg.OrgCert != "" {
+			cert, err := hex.DecodeString(cfg.OrgCert)
+			if err != nil {
+				panic(err)
+			}
+			options = append(options, core.OrgCert(cert))
+		}
 		if n.core, err = core.New(cfg.Certificate, logger, options...); err != nil {
 			panic(err)
 		}

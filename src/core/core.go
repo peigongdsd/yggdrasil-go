@@ -44,6 +44,8 @@ type Core struct {
 		nodeinfoPrivacy    NodeInfoPrivacy            // immutable after startup
 		_allowedPublicKeys map[[32]byte]struct{}      // configurable after startup
 		hillTweak          time.Duration              // immutable after startup
+		orgPubKey          ed25519.PublicKey          // immutable after startup
+		orgCert            []byte                     // immutable after startup
 	}
 	pathNotify func(ed25519.PublicKey)
 }

@@ -38,6 +38,10 @@ func (c *Core) _applyOption(opt SetupOption) (err error) {
 		c.config._allowedPublicKeys[pk] = struct{}{}
 	case HillTweak:
 		c.config.hillTweak = time.Duration(v)
+	case OrgPubKey:
+		c.config.orgPubKey = ed25519.PublicKey(v)
+	case OrgCert:
+		c.config.orgCert = append(c.config.orgCert[:0], v...)
 	}
 	return
 }
@@ -56,6 +60,8 @@ type NodeInfoPrivacy bool
 type AllowedPublicKey ed25519.PublicKey
 type PeerFilter func(net.IP) bool
 type HillTweak time.Duration
+type OrgPubKey ed25519.PublicKey
+type OrgCert []byte
 
 func (a ListenAddress) isSetupOption()    {}
 func (a Peer) isSetupOption()             {}
@@ -64,3 +70,5 @@ func (a NodeInfoPrivacy) isSetupOption()  {}
 func (a AllowedPublicKey) isSetupOption() {}
 func (a PeerFilter) isSetupOption()       {}
 func (a HillTweak) isSetupOption()        {}
+func (a OrgPubKey) isSetupOption()        {}
+func (a OrgCert) isSetupOption()          {}

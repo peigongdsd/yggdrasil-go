@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"context"
+	"crypto/ed25519"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -629,6 +630,9 @@ func (l *links) handler(linkType linkType, options linkOptions, conn net.Conn, s
 	meta.publicKey = l.core.public
 	meta.priority = options.priority
 	meta.hillTweakMs = int64(l.core.config.hillTweak / time.Millisecond)
+	if len(l.core.config.orgCert) > 0 {
+		meta.orgCert = l.core.config.orgCert
+	}
 	metaBytes, err := meta.encode(l.core.secret, options.password)
 	if err != nil {
 		return fmt.Errorf("failed to generate handshake: %w", err)
@@ -645,9 +649,21 @@ func (l *links) handler(linkType linkType, options linkOptions, conn net.Conn, s
 	}
 	meta = version_metadata{}
 	base := version_getBaseMetadata()
-	if err := meta.decode(conn, options.password); err != nil {
+	if err := meta.decode(conn); err != nil {
 		_ = conn.Close()
 		return err
+	}
+	orgCertValid := false
+	if len(meta.orgCert) > 0 && len(l.core.config.orgPubKey) == ed25519.PublicKeySize {
+		if err := VerifyOrgCertV1(meta.orgCert, l.core.config.orgPubKey, meta.publicKey); err == nil {
+			orgCertValid = true
+		}
+	}
+	if !orgCertValid {
+		if err := meta.verifyPassword(options.password); err != nil {
+			_ = conn.Close()
+			return err
+		}
 	}
 	if !meta.check() {
 		return fmt.Errorf("remote node incompatible version (local %s, remote %s)",

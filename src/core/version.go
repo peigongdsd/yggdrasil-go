@@ -22,6 +22,8 @@ type version_metadata struct {
 	publicKey   ed25519.PublicKey
 	priority    uint8
 	hillTweakMs int64
+	orgCert     []byte
+	sig         []byte
 }
 
 const (
@@ -37,6 +39,7 @@ const (
 	metaPublicKey                  // [32]byte
 	metaPriority                   // uint8
 	metaHillTweak                  // int64 (milliseconds)
+	metaOrgCert                    // []byte
 )
 
 type handshakeError string
@@ -83,6 +86,12 @@ func (m *version_metadata) encode(privateKey ed25519.PrivateKey, password []byte
 	bs = binary.BigEndian.AppendUint16(bs, 8)
 	bs = binary.BigEndian.AppendUint64(bs, uint64(m.hillTweakMs))
 
+	if len(m.orgCert) > 0 {
+		bs = binary.BigEndian.AppendUint16(bs, metaOrgCert)
+		bs = binary.BigEndian.AppendUint16(bs, uint16(len(m.orgCert)))
+		bs = append(bs, m.orgCert...)
+	}
+
 	hasher, err := blake2b.New512(password)
 	if err != nil {
 		return nil, err
@@ -102,7 +111,8 @@ func (m *version_metadata) encode(privateKey ed25519.PrivateKey, password []byte
 }
 
 // Decodes version metadata from its wire format into the struct.
-func (m *version_metadata) decode(r io.Reader, password []byte) error {
+// Signature verification is performed separately via verifyPassword.
+func (m *version_metadata) decode(r io.Reader) error {
 	bh := [6]byte{}
 	if _, err := io.ReadFull(r, bh[:]); err != nil {
 		return err
@@ -119,8 +129,12 @@ func (m *version_metadata) decode(r io.Reader, password []byte) error {
 	if _, err := io.ReadFull(r, bs); err != nil {
 		return err
 	}
+	if len(bs) < ed25519.SignatureSize {
+		return ErrHandshakeInvalidLength
+	}
 	sig := bs[len(bs)-ed25519.SignatureSize:]
 	bs = bs[:len(bs)-ed25519.SignatureSize]
+	m.sig = append(m.sig[:0], sig...)
 
 	for len(bs) >= 4 {
 		op := binary.BigEndian.Uint16(bs[:2])
@@ -145,10 +159,17 @@ func (m *version_metadata) decode(r io.Reader, password []byte) error {
 			if len(bs) >= 8 {
 				m.hillTweakMs = int64(binary.BigEndian.Uint64(bs[:8]))
 			}
+		case metaOrgCert:
+			if len(bs) >= int(oplen) {
+				m.orgCert = append(m.orgCert[:0], bs[:oplen]...)
+			}
 		}
 		bs = bs[oplen:]
 	}
+	return nil
+}
 
+func (m *version_metadata) verifyPassword(password []byte) error {
 	hasher, err := blake2b.New512(password)
 	if err != nil {
 		return ErrHandshakeInvalidPassword
@@ -158,7 +179,7 @@ func (m *version_metadata) decode(r io.Reader, password []byte) error {
 		return ErrHandshakeHashFailure
 	}
 	hash := hasher.Sum(nil)
-	if !ed25519.Verify(m.publicKey, hash, sig) {
+	if !ed25519.Verify(m.publicKey, hash, m.sig) {
 		return ErrHandshakeIncorrectPassword
 	}
 	return nil
