@@ -36,7 +36,10 @@ func runOrgSign(args []string) error {
 	if err != nil {
 		return fmt.Errorf("read orgkey: %w", err)
 	}
-	orgKeyHex := strings.TrimSpace(string(orgKeyBytes))
+	orgKeyHex := parseOrgKeyHex(string(orgKeyBytes))
+	if orgKeyHex == "" {
+		return errors.New("orgkey file must contain OrgPrivKey or a raw hex key")
+	}
 	orgKeyRaw, err := hex.DecodeString(orgKeyHex)
 	if err != nil {
 		return fmt.Errorf("decode orgkey hex: %w", err)
@@ -70,4 +73,18 @@ func runOrgSign(args []string) error {
 	}
 	fmt.Println(hex.EncodeToString(cert))
 	return nil
+}
+
+func parseOrgKeyHex(input string) string {
+	lines := strings.Split(input, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "OrgPrivKey:") {
+			return strings.TrimSpace(strings.TrimPrefix(line, "OrgPrivKey:"))
+		}
+	}
+	return strings.TrimSpace(input)
 }
